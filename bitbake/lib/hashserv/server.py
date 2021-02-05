@@ -168,7 +168,7 @@ class ServerClient(object):
 
 
             self.addr = self.writer.get_extra_info('peername')
-            logger.debug('Client %r connected' % (self.addr,))
+            logger.debug(1, 'Client %r connected' % (self.addr,))
 
             # Read protocol and version
             protocol = await self.reader.readline()
@@ -212,7 +212,7 @@ class ServerClient(object):
     async def dispatch_message(self, msg):
         for k in self.handlers.keys():
             if k in msg:
-                logger.debug('Handling %s' % k)
+                logger.debug(1, 'Handling %s' % k)
                 if 'stream' in k:
                     await self.handlers[k](msg[k])
                 else:
@@ -273,7 +273,7 @@ class ServerClient(object):
             row = self.query_equivalent(method, taskhash, self.FAST_QUERY)
 
         if row is not None:
-            logger.debug('Found equivalent task %s -> %s', (row['taskhash'], row['unihash']))
+            logger.debug(1, 'Found equivalent task %s -> %s', (row['taskhash'], row['unihash']))
             d = {k: row[k] for k in row.keys()}
         elif self.upstream_client is not None:
             d = await copy_from_upstream(self.upstream_client, self.db, method, taskhash)
@@ -307,11 +307,11 @@ class ServerClient(object):
                     return
 
                 (method, taskhash) = l.split()
-                #logger.debug('Looking up %s %s' % (method, taskhash))
+                #logger.debug(1, 'Looking up %s %s' % (method, taskhash))
                 row = self.query_equivalent(method, taskhash, self.FAST_QUERY)
                 if row is not None:
                     msg = ('%s\n' % row['unihash']).encode('utf-8')
-                    #logger.debug('Found equivalent task %s -> %s', (row['taskhash'], row['unihash']))
+                    #logger.debug(1, 'Found equivalent task %s -> %s', (row['taskhash'], row['unihash']))
                 elif self.upstream_client is not None:
                     upstream = await self.upstream_client.get_unihash(method, taskhash)
                     if upstream:
