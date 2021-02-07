@@ -14,7 +14,7 @@ SRC_URI = "git://github.com/google/shaderc.git;protocol=https;branch=main \
 UPSTREAM_CHECK_GITTAGREGEX = "^(?P<pver>\d+(\.\d+)+)$"
 S = "${WORKDIR}/git"
 
-inherit cmake python3native
+inherit cmake python3native pkgconfig
 
 DEPENDS = "spirv-headers spirv-tools glslang"
 
@@ -25,17 +25,12 @@ EXTRA_OECMAKE = " \
     -DSHADERC_SKIP_EXAMPLES=ON \
 "
 
-BBCLASSEXTEND = "native nativesdk"
-
-# TODO: probably there is better solution for this.
-# I don't know any method for get the version of a receipe in DEPENDS,
-# so do this ugly hack
-inherit pkgconfig
-DEPENDS += "glslang-native"
 do_configure_prepend() {
     cat <<- EOF > ${S}/glslc/src/build-version.inc
 "${PV}\\n"
 "$(pkg-config --modversion SPIRV-Tools)\\n"
-"$(glslangValidator --version | head -1 | cut -d' ' -f3)\\n"
+"$(pkg-config --modversion glslang)\\n"
 EOF
 }
+
+BBCLASSEXTEND = "native nativesdk"
