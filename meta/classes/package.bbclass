@@ -47,6 +47,7 @@ inherit insane
 
 PKGD    = "${WORKDIR}/package"
 PKGDEST = "${WORKDIR}/packages-split"
+PKGEXTRA = "${WORKDIR}/package-extra"
 
 LOCALE_SECTION ?= ''
 
@@ -248,9 +249,10 @@ python () {
         if d.getVar('PACKAGE_MINIDEBUGINFO') == '1':
             deps += ' xz-native:do_populate_sysroot'
         d.appendVarFlag('do_package', 'depends', deps)
+        d.appendVarFlag('do_packagesplit', 'depends', deps)
 
         # shlibs requires any DEPENDS to have already packaged for the *.list files
-        d.appendVarFlag('do_package', 'deptask', " do_packagedata")
+        d.appendVarFlag('do_packagesplit', 'deptask', " do_packagedata")
 }
 
 # Get a list of files from file vars by searching files under current working directory
@@ -2318,9 +2320,9 @@ def gen_packagevar(d, pkgvars="PACKAGEVARS"):
     return " ".join(ret)
 
 PACKAGE_PREPROCESS_FUNCS ?= ""
+PACKAGESPLIT_PREPROCESS_FUNCS ?= ""
 # Functions for setting up PKGD
 PACKAGEBUILDPKGD ?= " \
-                package_prepare_pkgdata \
                 perform_packagecopy \
                 ${PACKAGE_PREPROCESS_FUNCS} \
                 split_and_strip_files \
@@ -2328,10 +2330,12 @@ PACKAGEBUILDPKGD ?= " \
                 "
 # Functions which split PKGD up into separate packages
 PACKAGESPLITFUNCS ?= " \
+                ${PACKAGESPLIT_PREPROCESS_FUNCS} \
                 package_do_split_locales \
                 populate_packages"
 # Functions which process metadata based on split packages
 PACKAGEFUNCS += " \
+                package_prepare_pkgdata \
                 package_fixsymlinks \
                 package_name_hook \
                 package_do_filedeps \
@@ -2394,6 +2398,24 @@ python do_package () {
 
     for f in (d.getVar('PACKAGEBUILDPKGD') or '').split():
         bb.build.exec_func(f, d)
+}
+
+do_package[dirs] = "${D} ${PKGEXTRA}"
+do_package[vardeps] += "${PACKAGEBUILDPKGD}"
+addtask package after do_install
+
+SSTATETASKS += "do_package"
+do_package[sstate-plaindirs] = "${PKGD}"
+do_package_setscene[dirs] = "${STAGING_DIR}"
+
+python do_package_setscene () {
+    sstate_setscene(d)
+}
+addtask do_package_setscene
+
+python do_packagesplit() {
+    # Init cachedpath
+    global cpath
 
     ###########################################################################
     # Split up PKGD into PKGDEST
@@ -2427,19 +2449,21 @@ python do_package () {
         bb.fatal("Fatal QA errors found, failing task.")
 }
 
-do_package[dirs] = "${SHLIBSWORKDIR} ${PKGDESTWORK} ${D}"
-do_package[vardeps] += "${PACKAGEBUILDPKGD} ${PACKAGESPLITFUNCS} ${PACKAGEFUNCS} ${@gen_packagevar(d)}"
-addtask package after do_install
+do_packagesplit[dirs] = "${SHLIBSWORKDIR} ${PKGDESTWORK}"
+do_packagesplit[vardeps] += "${PACKAGESPLITFUNCS} ${PACKAGEFUNCS} ${@gen_packagevar(d)}"
+# TODO: Figure out why I need this
+do_packagesplit[depends] += "${POPULATESYSROOTDEPS}"
+addtask packagesplit after do_package
 
-SSTATETASKS += "do_package"
-do_package[cleandirs] = "${PKGDEST} ${PKGDESTWORK}"
-do_package[sstate-plaindirs] = "${PKGD} ${PKGDEST} ${PKGDESTWORK}"
-do_package_setscene[dirs] = "${STAGING_DIR}"
+SSTATETASKS += "do_packagesplit"
+do_packagesplit[cleandirs] = "${PKGDESTWORK} ${PKGDEST}"
+do_packagesplit[sstate-plaindirs] = "${PKGDEST} ${PKGDESTWORK}"
+do_packagesplit_setscene[dirs] = "${STAGING_DIR}"
 
-python do_package_setscene () {
+python do_packagesplit_setscene () {
     sstate_setscene(d)
 }
-addtask do_package_setscene
+addtask do_packagesplit_setscene
 
 # Copy from PKGDESTWORK to tempdirectory as tempdirectory can be cleaned at both
 # do_package_setscene and do_packagedata_setscene leading to races
@@ -2461,7 +2485,7 @@ packagedata_translate_pr_autoinc() {
             -e 's,@EXTENDPRAUTO@,${EXTENDPRAUTO},g' -i
 }
 
-addtask packagedata before do_build after do_package
+addtask packagedata before do_build after do_packagesplit
 
 SSTATETASKS += "do_packagedata"
 do_packagedata[sstate-inputdirs] = "${WORKDIR}/pkgdata-pdata-input"

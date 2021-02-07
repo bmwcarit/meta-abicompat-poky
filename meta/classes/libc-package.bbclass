@@ -186,7 +186,7 @@ python package_do_split_gconvs () {
 
     # Read in supported locales and associated encodings
     supported = {}
-    with open(oe.path.join(d.getVar('WORKDIR'), "SUPPORTED")) as f:
+    with open(oe.path.join(d.getVar('PKGEXTRA'), "SUPPORTED")) as f:
         for line in f.readlines():
             try:
                 locale, charset = line.rstrip().split()
@@ -382,3 +382,11 @@ python package_do_split_gconvs () {
 python populate_packages_prepend () {
     bb.build.exec_func('package_do_split_gconvs', d)
 }
+
+# Since we are moving the use of this SUPPORTED file to do_packagessplit, we
+# need to preserve it in the sstate-cache because do_install won't always run.
+package_deploy_glibc_supported() {
+    cp -f "${WORKDIR}/SUPPORTED" "${PKGEXTRA}/SUPPORTED"
+}
+
+PACKAGE_PREPROCESS_FUNCS += "package_deploy_glibc_supported"

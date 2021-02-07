@@ -71,7 +71,7 @@ PTEST_BINDIR_PKGD_PATH = "${PKGD}${PTEST_PATH}/bin"
 # This function needs to run after apply_update_alternative_renames because the
 # aforementioned function will update the ALTERNATIVE_LINK_NAME flag. Append is
 # used here to make this function to run as late as possible.
-PACKAGE_PREPROCESS_FUNCS_append = "${@bb.utils.contains('PTEST_BINDIR', '1', \
+PACKAGESPLIT_PREPROCESS_FUNCS_append = "${@bb.utils.contains('PTEST_BINDIR', '1', \
                                     bb.utils.contains('PTEST_ENABLED', '1', ' ptest_update_alternatives', '', d), '', d)}"
 
 python ptest_update_alternatives() {

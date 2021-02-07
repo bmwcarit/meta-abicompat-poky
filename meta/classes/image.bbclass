@@ -612,6 +612,7 @@ do_install[noexec] = "1"
 deltask do_populate_lic
 deltask do_populate_sysroot
 do_package[noexec] = "1"
+do_packagesplit[noexec] = "1"
 deltask do_package_qa
 do_packagedata[noexec] = "1"
 deltask do_package_write_ipk
@@ -673,3 +674,5 @@ systemd_preset_all () {
 IMAGE_PREPROCESS_COMMAND_append = " ${@ 'systemd_preset_all;' if bb.utils.contains('DISTRO_FEATURES', 'systemd', True, False, d) and not bb.utils.contains('IMAGE_FEATURES', 'stateless-rootfs', True, False, d) else ''} reproducible_final_image_task; "
 
 CVE_PRODUCT = ""
+
+POPULATESYSROOTDEPS = ""

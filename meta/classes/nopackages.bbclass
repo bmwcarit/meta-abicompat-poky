@@ -1,4 +1,5 @@
 deltask do_package
+deltask do_packagesplit
 deltask do_package_write_rpm
 deltask do_package_write_ipk
 deltask do_package_write_deb

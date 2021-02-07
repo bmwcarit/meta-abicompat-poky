@@ -176,7 +176,7 @@ do_install_append_class-native () {
     done
 }
 
-PACKAGE_PREPROCESS_FUNCS += "perl_package_preprocess"
+PACKAGESPLIT_PREPROCESS_FUNCS += "perl_package_preprocess"
 
 perl_package_preprocess () {
         # Fix up installed configuration

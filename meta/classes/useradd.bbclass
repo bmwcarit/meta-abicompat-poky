@@ -146,6 +146,8 @@ python useradd_sysroot_sstate () {
     task = d.getVar("BB_CURRENTTASK")
     if task == "package_setscene":
         bb.build.exec_func("useradd_sysroot", d)
+    elif task == "packagesplit_setscene":
+        bb.build.exec_func("useradd_sysroot", d)
     elif task == "prepare_recipe_sysroot":
         # Used to update this recipe's own sysroot so the user/groups are available to do_install
         scriptfile = d.expand("${RECIPE_SYSROOT}${bindir}/postinst-useradd-${PN}")
@@ -163,6 +165,17 @@ python useradd_sysroot_sstate () {
         os.chmod(scriptfile, 0o755)
 }
 
+# Somehow splitting do_package up breaks do_package_qa. We need to remove this
+# file from the recipe sysroot so the one from do_install can stage properly.
+python rm_useradd_from_recipe_sysroot () {
+    scriptfile = d.expand("${RECIPE_SYSROOT}${bindir}/postinst-useradd-${PN}")
+    oe.path.remove(scriptfile)
+}
+
+python() {
+    d.prependVarFlag("do_package_qa", "prefuncs", "rm_useradd_from_recipe_sysroot ")
+}
+
 do_prepare_recipe_sysroot[postfuncs] += "${SYSROOTFUNC}"
 SYSROOTFUNC_class-target = "useradd_sysroot_sstate"
 SYSROOTFUNC = ""
@@ -172,6 +185,8 @@ SYSROOT_PREPROCESS_FUNCS += "${SYSROOTFUNC}"
 SSTATEPREINSTFUNCS_append_class-target = " useradd_sysroot_sstate"
 
 do_package_setscene[depends] += "${USERADDSETSCENEDEPS}"
+do_packagesplit_setscene[depends] += "${USERADDSETSCENEDEPS}"
+do_package_qa_setscene[depends] += "${USERADDSETSCENEDEPS}"
 do_populate_sysroot_setscene[depends] += "${USERADDSETSCENEDEPS}"
 USERADDSETSCENEDEPS_class-target = "${MLPREFIX}base-passwd:do_populate_sysroot_setscene pseudo-native:do_populate_sysroot_setscene shadow-native:do_populate_sysroot_setscene ${MLPREFIX}shadow-sysroot:do_populate_sysroot_setscene"
 USERADDSETSCENEDEPS = ""

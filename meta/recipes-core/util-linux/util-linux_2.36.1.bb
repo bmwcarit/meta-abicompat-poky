@@ -86,8 +86,8 @@ python util_linux_binpackages () {
         d.setVar('FILES_' + pn + '-' + pkg, links)
 }
 
-# we must execute before update-alternatives PACKAGE_PREPROCESS_FUNCS
-PACKAGE_PREPROCESS_FUNCS =+ "util_linux_binpackages "
+# we must execute before update-alternatives PACKAGESPLIT_PREPROCESS_FUNCS
+PACKAGESPLIT_PREPROCESS_FUNCS =+ "util_linux_binpackages "
 
 python util_linux_libpackages() {
     do_split_packages(d, root=d.getVar('UTIL_LINUX_LIBDIR'), file_regex=r'^lib(.*)\.so\..*$',

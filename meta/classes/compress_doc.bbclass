@@ -29,7 +29,8 @@ DOC_DECOMPRESS_CMD[gz] ?= 'gunzip -v'
 DOC_DECOMPRESS_CMD[bz2] ?= "bunzip2 -v"
 DOC_DECOMPRESS_CMD[xz] ?= "unxz -v"
 
-PACKAGE_PREPROCESS_FUNCS += "package_do_compress_doc compress_doc_updatealternatives"
+PACKAGE_PREPROCESS_FUNCS += "package_do_compress_doc"
+PACKAGESPLIT_PREPROCESS_FUNCS += "compress_doc_updatealternatives"
 python package_do_compress_doc() {
     compress_mode = d.getVar('DOC_COMPRESS')
     compress_list = (d.getVar('DOC_COMPRESS_LIST') or '').split()
