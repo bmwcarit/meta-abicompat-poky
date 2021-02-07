@@ -9,7 +9,9 @@ LICENSE = "BSD-3-Clause & BSD-2-Clause & MIT & Apache-2.0 & GPL-3-with-bison-exc
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=c5ce49c0456e9b413b98a4368c378229"
 
 SRCREV = "c594de23cdd790d64ad5f9c8b059baae0ee2941d"
-SRC_URI = "git://github.com/KhronosGroup/glslang.git;protocol=https"
+SRC_URI = "git://github.com/KhronosGroup/glslang.git;protocol=https \
+           file://0001-build-the-glslang-default-resource-limits-lib-static.patch \
+           "
 UPSTREAM_CHECK_GITTAGREGEX = "^(?P<pver>\d+(\.\d+)+)$"
 S = "${WORKDIR}/git"
 
@@ -22,8 +24,5 @@ EXTRA_OECMAKE = " \
     -DENABLE_CTEST=OFF \
     -DBUILD_EXTERNAL=OFF \
 "
-
-SOLIBSDEV = "glslang.so"
-FILES_${PN} += "${libdir}/*.so"
 
 BBCLASSEXTEND = "native nativesdk"

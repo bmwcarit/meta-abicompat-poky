@@ -1,0 +1,28 @@
+From 58ebb16f1ea50dbc4096ea24292be8e174528d75 Mon Sep 17 00:00:00 2001
+From: Jose Quaresma <quaresma.jose@gmail.com>
+Date: Sun, 7 Feb 2021 01:30:39 +0000
+Subject: [PATCH] build the glslang-default-resource-limits lib statically
+
+Taken from https://src.fedoraproject.org/rpms/glslang/blob/main/f/glslang-default-resource-limits_staticlib.patch
+
+Upstream-Status: Pending
+
+Signed-off-by: Jose Quaresma <quaresma.jose@gmail.com>
+
+---
+ StandAlone/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/StandAlone/CMakeLists.txt b/StandAlone/CMakeLists.txt
+index bff9ab61..c4d10ae9 100644
+--- a/StandAlone/CMakeLists.txt
++++ b/StandAlone/CMakeLists.txt
+@@ -31,7 +31,7 @@
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+ 
+-add_library(glslang-default-resource-limits
++add_library(glslang-default-resource-limits STATIC
+             ${CMAKE_CURRENT_SOURCE_DIR}/ResourceLimits.cpp
+             ${CMAKE_CURRENT_SOURCE_DIR}/resource_limits_c.cpp)
+ set_property(TARGET glslang-default-resource-limits PROPERTY FOLDER glslang)
