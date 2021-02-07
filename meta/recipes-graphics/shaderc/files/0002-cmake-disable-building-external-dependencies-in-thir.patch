@@ -1,36 +1,31 @@
-From a07ac322a5a5fd4f0339913eb4456321ad1a69fd Mon Sep 17 00:00:00 2001
+From fdef5b662df941c49fd2d6e486d0427f8dfb602e Mon Sep 17 00:00:00 2001
 From: Jose Quaresma <quaresma.jose@gmail.com>
-Date: Sat, 17 Oct 2020 12:51:50 +0100
-Subject: [PATCH] cmake: de-vendor libs and disable git versioning
+Date: Sun, 7 Feb 2021 01:30:39 +0000
+Subject: [PATCH] cmake: disable building external dependencies in /third_party
 
-Upstream-Status: Inappropriate [configuration]
+Upstream-Status: Inappropriate [OE-core specific]
 
 Signed-off-by: Jose Quaresma <quaresma.jose@gmail.com>
 
 ---
- CMakeLists.txt              | 2 --
- glslc/CMakeLists.txt        | 1 -
- glslc/src/build-version.inc | 0
- 3 files changed, 3 deletions(-)
- create mode 100644 glslc/src/build-version.inc
+ CMakeLists.txt       | 3 ---
+ glslc/CMakeLists.txt | 1 -
+ 2 files changed, 4 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 5c74cd8..9451fbc 100644
+index 0c8d1ae..c7940f6 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -102,12 +102,10 @@ endif(MSVC)
+@@ -111,9 +111,6 @@ endif(MSVC)
+ 
  
  # Configure subdirectories.
- # We depend on these for later projects, so they should come first.
+-# We depend on these for later projects, so they should come first.
 -add_subdirectory(third_party)
- 
+-
  add_subdirectory(libshaderc_util)
  add_subdirectory(libshaderc)
  add_subdirectory(glslc)
--add_subdirectory(examples)
- 
- add_custom_target(build-version
-   ${PYTHON_EXECUTABLE}
 diff --git a/glslc/CMakeLists.txt b/glslc/CMakeLists.txt
 index 31664d1..358d91b 100644
 --- a/glslc/CMakeLists.txt
@@ -43,6 +38,3 @@ index 31664d1..358d91b 100644
  
  shaderc_add_tests(
    TEST_PREFIX glslc
-diff --git a/glslc/src/build-version.inc b/glslc/src/build-version.inc
-new file mode 100644
-index 0000000..e69de29
