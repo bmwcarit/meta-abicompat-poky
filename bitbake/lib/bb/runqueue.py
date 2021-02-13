@@ -2068,6 +2068,7 @@ class RunQueueExecute:
 
         if not self.sq_live and not self.sqdone and not self.sq_deferred and not self.updated_taskhash_queue and not self.holdoff_tasks:
             hashequiv_logger.verbose("Setscene tasks completed")
+            bb.warn("Setscene tasks completed")
 
             err = self.summarise_scenequeue_errors()
             if err:
@@ -2273,6 +2274,7 @@ class RunQueueExecute:
 
             if unihash != self.rqdata.runtaskentries[tid].unihash:
                 hashequiv_logger.verbose("Task %s unihash changed to %s" % (tid, unihash))
+                bb.warn("Task %s unihash changed to %s" % (tid, unihash))
                 self.rqdata.runtaskentries[tid].unihash = unihash
                 bb.parse.siggen.set_unihash(tid, unihash)
                 toprocess.add(tid)
@@ -2319,6 +2321,7 @@ class RunQueueExecute:
                     # Already ran this setscene task or it running. Report the new taskhash
                     bb.parse.siggen.report_unihash_equiv(tid, newhash, origuni, newuni, self.rqdata.dataCaches)
                     hashequiv_logger.verbose("Already covered setscene for %s so ignoring rehash (remap)" % (tid))
+                    bb.warn("Already covered setscene for %s so ignoring rehash (remap)" % (tid))
                     remapped = True
 
                 if not remapped:
@@ -2338,6 +2341,7 @@ class RunQueueExecute:
                 self.rq.fakeworker[mc].process.stdin.write(b"<newtaskhashes>" + pickle.dumps(bb.parse.siggen.get_taskhashes()) + b"</newtaskhashes>")
 
             hashequiv_logger.debug(1, pprint.pformat("Tasks changed:\n%s" % (changed)))
+            bb.warn(pprint.pformat("Tasks changed:\n%s" % (changed)))
 
         for tid in changed:
             if tid not in self.rqdata.runq_setscene_tids:
@@ -2357,6 +2361,7 @@ class RunQueueExecute:
             for dep in self.sqdata.sq_covered_tasks[tid]:
                 if dep in self.runq_running and dep not in self.runq_complete:
                     hashequiv_logger.debug(2, "Task %s is running which blocks setscene for %s from running" % (dep, tid))
+                    bb.warn("Task %s is running which blocks setscene for %s from running" % (dep, tid))
                     valid = False
                     break
             if not valid:
@@ -2420,6 +2425,7 @@ class RunQueueExecute:
         for (tid, harddepfail, origvalid) in update_tasks:
             if tid in self.sqdata.valid and not origvalid:
                 hashequiv_logger.verbose("Setscene task %s became valid" % tid)
+                bb.warn("Setscene task %s became valid" % tid)
             if harddepfail:
                 self.sq_task_failoutright(tid)
 
